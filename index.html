@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de JSON para Música y SFX</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section, .json-section {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .items-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-info {
+            flex-grow: 1;
+        }
+        
+        .item-number {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .item-tag {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .item-type {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .json-output {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .empty-message {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Generador de JSON para Música y Efectos de Sonido</h1>
+            <p class="description">Agrega enlaces de música y efectos de sonido para generar un archivo JSON con la estructura requerida.</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="form-section">
+                <h2>Agregar Elemento</h2>
+                <form id="item-form">
+                    <div class="form-group">
+                        <label for="numero">Número:</label>
+                        <input type="number" id="numero" required min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tag">Tag:</label>
+                        <input type="text" id="tag" required placeholder="Ej: ambiente, acción, suspense">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo">Tipo:</label>
+                        <select id="tipo" required>
+                            <option value="">Selecciona un tipo</option>
+                            <option value="SFX">SFX</option>
+                            <option value="Musica">Música</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="url">URL:</label>
+                        <input type="url" id="url" required placeholder="https://ejemplo.com/audio.mp3">
+                    </div>
+                    
+                    <button type="submit" class="btn-success">Agregar Elemento</button>
+                </form>
+                
+                <div class="items-list" id="items-list">
+                    <div class="empty-message">No hay elementos agregados</div>
+                </div>
+            </div>
+            
+            <div class="json-section">
+                <h2>JSON Generado</h2>
+                <div class="json-output" id="json-output">[]</div>
+                
+                <div class="action-buttons">
+                    <button id="copy-btn">Copiar JSON</button>
+                    <button id="download-btn" class="btn-success">Descargar JSON</button>
+                    <button id="clear-btn" class="btn-danger">Limpiar Todo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemForm = document.getElementById('item-form');
+            const itemsList = document.getElementById('items-list');
+            const jsonOutput = document.getElementById('json-output');
+            const copyBtn = document.getElementById('copy-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            
+            let items = [];
+            
+            // Cargar datos guardados del localStorage
+            const savedItems = localStorage.getItem('audioItems');
+            if (savedItems) {
+                items = JSON.parse(savedItems);
+                updateItemsList();
+                updateJSON();
+            }
+            
+            // Agregar nuevo elemento
+            itemForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const numero = document.getElementById('numero').value;
+                const tag = document.getElementById('tag').value;
+                const tipo = document.getElementById('tipo').value;
+                const url = document.getElementById('url').value;
+                
+                // Verificar si el número ya existe
+                if (items.some(item => item.numero === parseInt(numero))) {
+                    alert('Ya existe un elemento con ese número. Por favor, usa un número diferente.');
+                    return;
+                }
+                
+                const newItem = {
+                    numero: parseInt(numero),
+                    tag: tag,
+                    tipo: tipo,
+                    URL: url
+                };
+                
+                items.push(newItem);
+                items.sort((a, b) => a.numero - b.numero);
+                
+                // Guardar en localStorage
+                localStorage.setItem('audioItems', JSON.stringify(items));
+                
+                updateItemsList();
+                updateJSON();
+                
+                // Limpiar formulario
+                itemForm.reset();
+            });
+            
+            // Actualizar la lista de elementos
+            function updateItemsList() {
+                if (items.length === 0) {
+                    itemsList.innerHTML = '<div class="empty-message">No hay elementos agregados</div>';
+                    return;
+                }
+                
+                itemsList.innerHTML = '';
+                
+                items.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'item';
+                    
+                    itemElement.innerHTML = `
+                        <div class="item-info">
+                            <span class="item-number">${item.numero}</span>
+                            <span class="item-tag">${item.tag}</span>
+                            <span class="item-type">${item.tipo}</span>
+                        </div>
+                        <button class="btn-danger delete-btn" data-index="${index}">Eliminar</button>
+                    `;
+                    
+                    itemsList.appendChild(itemElement);
+                });
+                
+                // Agregar event listeners a los botones de eliminar
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        items.splice(index, 1);
+                        localStorage.setItem('audioItems', JSON.stringify(items));
+                        updateItemsList();
+                        updateJSON();
+                    });
+                });
+            }
+            
+            // Actualizar el JSON
+            function updateJSON() {
+                jsonOutput.textContent = JSON.stringify(items, null, 2);
+            }
+            
+            // Copiar JSON al portapapeles
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(jsonOutput.textContent)
+                    .then(() => {
+                        alert('JSON copiado al portapapeles');
+                    })
+                    .catch(err => {
+                        console.error('Error al copiar: ', err);
+                    });
+            });
+            
+            // Descargar JSON
+            downloadBtn.addEventListener('click', function() {
+                const blob = new Blob([jsonOutput.textContent], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'audio-links.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            
+            // Limpiar todo
+            clearBtn.addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que quieres eliminar todos los elementos?')) {
+                    items = [];
+                    localStorage.removeItem('audioItems');
+                    updateItemsList();
+                    updateJSON();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
